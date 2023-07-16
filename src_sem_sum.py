@@ -5,12 +5,16 @@ import unittest
 import re
 import yaml
 import argparse
+import logging, sys
 
 from tqdm import tqdm
 
 
 # Load your OpenAI API key from an environment variable
 openai.api_key = os.getenv('OPENAI_API_KEY')
+
+# Set up logging to go to stderr, not stdout
+logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 # Define the prompt for the GPT-3 API
 def get_user_message(file_path, file_content):
@@ -23,16 +27,21 @@ def get_user_message(file_path, file_content):
     1: provide a one line descriptoin for explaining general purpose of the file,
     2: list all imported symbols,
     3: provide one line description for all exported symbols.
-    The result should be in JSON format as specified below, without any additional description of the response:
+    The result should be in JSON format as specified below:
+    The response SHOULD be in complete JSON format, only contain the JSON, no other descriptive text should be added.
 
     ```
-    {{
-        "file_purpose": purpose_of_the_file,
-        "imported_symbols": ["import_symbol1", "import_symbol2", ...],
-        "exported_symbols": [
-            {{"exported_symbola": "description_of_symbola"}},
-            {{"exported_symbolb": "description_of_symbolb"}}
-        ]
+    {{  name_of_the_file,
+        {{
+            "path": path_of_the_file,
+            "purpose": purpose_of_the_file,
+            "imported_symbols": ["import_symbol1", "import_symbol2", ...],
+            "exported_symbols": [
+                {{"exported_symbola": "description_of_symbola"}},
+                {{"exported_symbolb": "description_of_symbolb"}}
+            ]
+        }}
+
     }}
     ```
     """
@@ -76,18 +85,20 @@ def parse_response(raw_response):
 def get_summary_response(file_path):
     response = openai.ChatCompletion.create(
         model="gpt-4",
-        messages=get_prompt_messages(file_path),
-        max_tokens=200
+        messages=get_prompt_messages(file_path)
     )
     return parse_response(response.choices[0].message.content.strip())
 
 def process_files(directory, results):
     for filename in tqdm(os.listdir(directory)):
-        file_path = os.path.join(directory, filename)
-        if os.path.isfile(file_path):
-            results[file_path] = get_summary_response(file_path)
-        elif os.path.isdir(file_path):
-            process_files(file_path, results)
+        try:
+            file_path = os.path.join(directory, filename)
+            if os.path.isfile(file_path):
+                results[file_path] = get_summary_response(file_path)
+            elif os.path.isdir(file_path):
+                process_files(file_path, results)
+        except Exception as e:
+            logging.error(f"Exception: {e}, while processing {filename}")
 
 def get_results(directory):
     results = {}
@@ -99,12 +110,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Generate semantic summary from source code.")
 
     # Add the arguments
-    parser.add_argument('dir', type=str, help='The source code directory')
+    parser.add_argument('--dir', type=str, default='.', help='The source code directory')
+    parser.add_argument('--file', type=str, default=None, help='the file to summerize')
 
     # Parse the arguments
     args = parser.parse_args()
-
-    # Now you can use args.dir to access the value of "dir"
-    print(f"The provided directory is: {args.dir}")
-
-    print(get_results(args.dir))
+    if args.file is None:
+        print(get_results(args.dir))
+    else:
+        print(yaml.dump(get_summary_response(args.file)))
