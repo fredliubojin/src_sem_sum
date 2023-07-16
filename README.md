@@ -10,7 +10,7 @@ While retaining major semantic of the original source code, the file itself is d
 
 
 ## Features
-- **Source Code Analysis:** The application reads the content of a source code file and uses GPT-3 to generate a summary.
+- **Source Code Analysis:** The application reads the content of a source code file and uses GPT4 to generate a summary.
 - **Multi-Language Support:** Supports Java, Python, JavaScript, TypeScript, Golang, Rust, C and C++.
 - **Directory Scanning:** Can process an entire directory of source code files, recursively handling subdirectories.
 - **YAML Output:** The summary for each file is returned in YAML format, providing a clear structure that is easy to parse and use in other applications.
@@ -26,9 +26,9 @@ While retaining major semantic of the original source code, the file itself is d
 5. The script will output a YAML formatted string representing a dictionary where the keys are file paths and the values are the corresponding semantic summaries.
 
 ## Future Features
-- **Improved Parsing:** More robust parsing of the GPT-3 response, potentially with JSON schema.
+- **Improved Parsing:** More robust parsing of the GPT response, potentially with JSON schema.
 - **Additional Language Support:** Extend the support to more programming languages.
 - **Customizable Output Format:** Allow the user to specify the output format (e.g., JSON, XML, etc.).
 - **Integration with Code Editors:** Develop plugins for popular code editors to use this tool directly from the editor.
 
-Please note that this tool is reliant on the OpenAI GPT-3 model, which may have usage costs associated with it. Be sure to understand the cost structure of the OpenAI API before using this tool extensively.
+Please note that this tool is reliant on the OpenAI GPT model, which may have usage costs associated with it. Be sure to understand the cost structure of the OpenAI API before using this tool extensively.
