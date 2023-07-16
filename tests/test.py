@@ -1,5 +1,5 @@
 import os, unittest
-from src_sem_sum import parse_response, get_prompt_messages, get_summary_response, get_results
+from src_sem_sum import parse_response, get_prompt_messages, get_summary_response, process_files, get_results
 import pprint
 
 class TestMethods(unittest.TestCase):
@@ -41,21 +41,20 @@ In this file, the `countModelTokens` function is the only symbol that is exporte
 
     def test_get_prompt_messages(self):
         expected_message = ""
-        message = get_prompt_messages("tests/sample.py")
+        message = get_prompt_messages("tests/cases/sample.py")
         print(f"{message=}")
         self.assertEqual(message, expected_message)
 
     def test_get_summary_response(self):
-        response = get_summary_response('tests/token-counter.ts')
+        response = get_summary_response('tests/cases/sample.py')
         print(f'completion result: {response}')
         self.assertIsNotNone(response)
 
-    def test_get_results(self):
-        self.assertEqual(get_results('.'), {'./sample.py': 'expected response'})
+    def test_process_files(self):
+        results = {}
+        process_files("./tests/cases/", results)
+        pprint.pprint(results)
 
-
-if __name__ == '__main__':
-    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()

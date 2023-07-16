@@ -3,7 +3,11 @@ import openai
 import json
 import unittest
 import re
-import ijson
+import yaml
+import argparse
+
+from tqdm import tqdm
+
 
 # Load your OpenAI API key from an environment variable
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -23,7 +27,6 @@ def get_user_message(file_path, file_content):
 
     ```
     {{
-        "path": path_of_the_file,
         "file_purpose": purpose_of_the_file,
         "imported_symbols": ["import_symbol1", "import_symbol2", ...],
         "exported_symbols": [
@@ -76,10 +79,10 @@ def get_summary_response(file_path):
         messages=get_prompt_messages(file_path),
         max_tokens=200
     )
-    return response.choices[0].message.content.strip()
+    return parse_response(response.choices[0].message.content.strip())
 
 def process_files(directory, results):
-    for filename in os.listdir(directory):
+    for filename in tqdm(os.listdir(directory)):
         file_path = os.path.join(directory, filename)
         if os.path.isfile(file_path):
             results[file_path] = get_summary_response(file_path)
@@ -89,12 +92,19 @@ def process_files(directory, results):
 def get_results(directory):
     results = {}
     process_files(directory, results)
-    return results
-
-def get_json_results(directory):
-    results = get_results(directory)
-    return json.dumps(results, indent=4)
-
+    return yaml.dump(results)
 
 if __name__ == '__main__':
-    print(get_results("."))
+    # Create the parser
+    parser = argparse.ArgumentParser(description="Generate semantic summary from source code.")
+
+    # Add the arguments
+    parser.add_argument('dir', type=str, help='The source code directory')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Now you can use args.dir to access the value of "dir"
+    print(f"The provided directory is: {args.dir}")
+
+    print(get_results(args.dir))
