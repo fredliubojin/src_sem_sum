@@ -6,7 +6,7 @@ This project is a sophisticated Python application that utilizes OpenAI's GPT-4 
 ## Why do we need it
 The generated yml file retains semantic information of the original source code, and description of the functionality and purpose of the files and its symbols (imported and exported).
 
-While retaining major semantic of the original source code, the file itself is drastically smaller in token count, which could help explain the source code to LLM such as GPT4 less pressure on context window size (v.g. uploading entire source code to LLM).
+While retaining major semantic of the original source code, the file itself is drastically smaller in token count, which could help explain the source code to LLM such as GPT4 less pressure on context window size (v.s. uploading entire source code to LLM).
 
 
 ## Features
